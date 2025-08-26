@@ -16,6 +16,7 @@ O programa usa três arquivos de configuração:
 1. **`backup.conf`**: Lista os arquivos e pastas a serem incluídos no backup.
 2. **`destinos.conf`**: Lista os destinos para onde os backups criptografados serão copiados.
 3. **`pass.conf`**: Contém a senha usada para criptografar o backup.
+
    ![](Assets/2025-08-26_13-46.png)
 
 ### Estrutura dos Arquivos de Configuração
