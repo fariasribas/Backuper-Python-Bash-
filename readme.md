@@ -34,6 +34,9 @@ O programa usa três arquivos de configuração:
 - Crie um arquivo `backup.conf` e adicione os caminhos dos arquivos e pastas que você deseja incluir no backup.
 - Crie um arquivo `destinos.conf` e adicione os caminhos dos diretórios onde o backup criptografado será copiado.
 - Crie um arquivo `pass.conf` e adicione a senha que será usada para criptografar o backup.
+
+
+
   ![](Assets/2025-08-26_13-45.png)
 
 ### 2. Executando o Programa
