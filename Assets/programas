@@ -1,0 +1,59 @@
+##Direto do apt
+
+sudo
+i3
+i3status
+xorg
+dmenu
+picom
+feh
+alsa-utils
+gedit
+terminator
+thunar
+curl
+ranger
+firefox-esr
+keepassxc
+lxappearance
+claws-mail
+python3-full
+redshift
+gimp
+obs-studio
+papirus-icon-theme
+calibre
+snap
+sxiv
+zathura
+mpv
+mpd
+vym
+npm
+ark
+cmatrix
+neofetch
+htop
+kdenlive
+krita
+shotcut
+gparted
+qdirstat
+transmission
+
+
+##Precisa adicionar os repos
+codium
+
+##Precisa baixar o deb (mas nao alterar repos)
+anki
+papirus-folders
+obsidian
+
+##Instalar via snap
+
+
+##Instalar via NPM
+gtop
+
+

@@ -1,0 +1,113 @@
+import tarfile
+import os
+import shutil
+
+# Nomes fixos dos arquivos de configuração
+CONFIG_FILE = "backup.conf"
+DESTINOS_FILE = "destinos.conf"
+
+# Função para ler arquivos e pastas de um arquivo de configuração
+def read_config_file(config_file):
+    files_folders = []
+    with open(config_file, 'r') as file:
+        for line in file:
+            path = line.strip()
+            if os.path.isfile(path):
+                files_folders.append(path)
+            elif os.path.isdir(path):
+                files_folders.append(path)
+            else:
+                print(f"Path não encontrado ou inválido: {path}")
+    return files_folders
+
+# Função para ler destinos de backup de um arquivo de configuração
+def read_destinations_file(dest_file):
+    destinations = []
+    with open(dest_file, 'r') as file:
+        for line in file:
+            path = line.strip()
+            if os.path.isdir(os.path.dirname(path)) or not os.path.exists(path):
+                destinations.append(path)
+            else:
+                print(f"Destino inválido ou existente: {path}")
+    return destinations
+
+# Função para adicionar todos os arquivos de uma pasta
+def get_files_from_directory(directory):
+    file_list = []
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            file_list.append(os.path.join(root, file))
+    return file_list
+
+# Função para criar um arquivo de backup compactado
+def create_backup(files_folders, backup_name):
+    try:
+        with tarfile.open(backup_name, "w:gz") as tar:
+            for path in files_folders:
+                if os.path.isfile(path):
+                    # Adiciona arquivos preservando a estrutura
+                    tar.add(path, arcname=os.path.relpath(path, start=os.path.commonpath(files_folders)))
+                elif os.path.isdir(path):
+                    # Adiciona diretórios e seus arquivos preservando a estrutura
+                    for file in get_files_from_directory(path):
+                        tar.add(file, arcname=os.path.relpath(file, start=os.path.commonpath(files_folders)))
+        
+        print(f"Backup criado: {backup_name}")
+    
+    except Exception as e:
+        print(f"Erro durante a criação do backup: {e}")
+
+# Função para gerenciar e renomear backups antigos
+def manage_old_backups(backup_name, destinations):
+    for destination in destinations:
+        backup_base = os.path.join(destination, os.path.basename(CONFIG_FILE).replace('.conf', ''))
+        backup_path = backup_base + ".tar.gz"
+        backup_old_path = backup_base + "_old.tar.gz"
+        backup_very_old_path = backup_base + "_very_old.tar.gz"
+        
+        # Renomeia o backup atual para backup_old
+        if os.path.exists(backup_path):
+            if os.path.exists(backup_old_path):
+                if os.path.exists(backup_very_old_path):
+                    # Remove o backup mais antigo se existir
+                    os.remove(backup_very_old_path)
+                # Move o backup_old para backup_very_old
+                shutil.move(backup_old_path, backup_very_old_path)
+            # Move o backup atual para backup_old
+            shutil.move(backup_path, backup_old_path)
+
+    # Copia o novo backup para todos os destinos
+    for destination in destinations:
+        destination_path = os.path.join(destination, os.path.basename(backup_name))
+        shutil.copy2(backup_name, destination_path)
+        print(f"Backup copiado para: {destination_path}")
+
+# Função principal para processar arquivos de configuração e criar backups em múltiplos locais
+def main():
+    if not os.path.isfile(CONFIG_FILE):
+        print(f"Arquivo de configuração não encontrado: {CONFIG_FILE}")
+        return
+    
+    if not os.path.isfile(DESTINOS_FILE):
+        print(f"Arquivo de destinos não encontrado: {DESTINOS_FILE}")
+        return
+    
+    files_folders = read_config_file(CONFIG_FILE)
+    destinations = read_destinations_file(DESTINOS_FILE)
+    
+    if files_folders and destinations:
+        print("Arquivos e pastas selecionados a partir do arquivo de configuração:")
+        print(files_folders)
+        print("Destinos de backup a partir do arquivo de destinos:")
+        print(destinations)
+        
+        # Cria o backup e gerencia backups antigos
+        backup_name = os.path.basename(CONFIG_FILE).replace('.conf', '.tar.gz')
+        create_backup(files_folders, backup_name)
+        manage_old_backups(backup_name, destinations)
+    else:
+        print("Nenhum arquivo ou pasta válido encontrado no arquivo de configuração ou destinos.")
+
+if __name__ == "__main__":
+    main()

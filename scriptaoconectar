@@ -1,0 +1,40 @@
+#!/usr/bin/env python3
+
+import os
+import shutil
+import subprocess
+import time
+
+# Caminho do script de backup
+SCRIPT_PATH = "/usr/local/bin/backup_script.py"
+
+# Função para obter o caminho do dispositivo conectado
+def get_device_mount_point():
+    # Comando para listar os dispositivos montados
+    result = subprocess.run(['lsblk', '-o', 'NAME,MOUNTPOINT', '--json'], capture_output=True, text=True)
+    if result.returncode != 0:
+        print("Erro ao listar dispositivos")
+        return None
+
+    # Parse JSON output
+    devices = result.stdout
+    for device in devices['blockdevices']:
+        if device.get('mountpoint'):
+            return device['mountpoint']
+    return None
+
+def create_backup(mount_point):
+    backup_file = os.path.join(mount_point, 'backup.tar.gz')
+    # Chame a função de backup aqui
+    subprocess.run(['python3', SCRIPT_PATH, '--output', backup_file])
+
+def main():
+    while True:
+        # Espera por um dispositivo ser montado
+        mount_point = get_device_mount_point()
+        if mount_point:
+            create_backup(mount_point)
+        time.sleep(60)  # Verifica a cada 60 segundos
+
+if __name__ == "__main__":
+    main()
